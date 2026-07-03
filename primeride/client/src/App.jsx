@@ -33,13 +33,14 @@ export default function App() {
 
         {/* ── Public routes (no login needed) ── */}
         <Route element={<Layout />}>
-          <Route path="/"          element={<Home />} />
-          <Route path="/cars"      element={<Cars />} />
-          <Route path="/cars/:id"  element={<CarDetail />} />
-          <Route path="/about"     element={<About />} />
-          <Route path="/contact"   element={<Contact />} />
-          <Route path="/terms"     element={<Terms />} />
-          <Route path="/privacy"   element={<Privacy />} />
+          <Route path="/"           element={<Home />} />
+          <Route path="/cars"       element={<Cars />} />
+          <Route path="/cars/:id"   element={<CarDetail />} />
+          <Route path="/book/:id"   element={<CarDetail />} />
+          <Route path="/about"      element={<About />} />
+          <Route path="/contact"    element={<Contact />} />
+          <Route path="/terms"      element={<Terms />} />
+          <Route path="/privacy"    element={<Privacy />} />
         </Route>
 
         {/* ── Admin login (standalone, no navbar) ── */}

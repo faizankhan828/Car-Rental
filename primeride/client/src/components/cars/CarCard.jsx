@@ -15,7 +15,7 @@ export default function CarCard({ car, index = 0 }) {
       transition={{ delay: index * 0.05, duration: 0.4 }}
     >
       <Link
-        to={`/book/${car._id}`}
+        to={`/cars/${car._id}`}
         className="group block bg-white rounded-2xl overflow-hidden border border-gray-200 hover:border-blue-200 hover:shadow-lg transition-all duration-300"
       >
         {/* Image */}

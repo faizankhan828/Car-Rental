@@ -2,12 +2,14 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { STATIC_CARS } from '../data/staticCars';
 
-// This is the single source of truth for cars.
-// Admin changes here update the public-facing pages in real time.
+// Version this — bump when you want all devices to reset to latest static data
+const STORE_VERSION = 2;
+
 export const useCarStore = create(
   persist(
     (set, get) => ({
       cars: STATIC_CARS,
+      _storeVersion: STORE_VERSION,
 
       // Add a new car
       addCar: (car) => {
@@ -33,17 +35,14 @@ export const useCarStore = create(
       // Update an existing car
       updateCar: (id, updates) => {
         set((state) => ({
-          _version: (state._version || 0) + 1,
           cars: state.cars.map((c) => {
             if (c._id !== id) return c;
             const updated = { ...c, ...updates };
-            // Handle image URL update
             if (updates.imageUrl !== undefined) {
               updated.images = updates.imageUrl
                 ? [{ url: updates.imageUrl }]
                 : c.images;
             }
-            // Handle features string → array
             if (typeof updates.features === 'string') {
               updated.features = updates.features.split(',').map(f => f.trim()).filter(Boolean);
             }
@@ -67,7 +66,14 @@ export const useCarStore = create(
       getCarById: (id) => get().cars.find((c) => c._id === id),
     }),
     {
-      name: 'primeride-cars', // persisted in localStorage
+      name: 'primeride-cars-v2', // changed key = all devices start fresh
+      onRehydrateStorage: () => (state) => {
+        // If the stored version doesn't match, reset to static defaults
+        if (state && state._storeVersion !== STORE_VERSION) {
+          state.cars = STATIC_CARS;
+          state._storeVersion = STORE_VERSION;
+        }
+      },
     }
   )
 );
