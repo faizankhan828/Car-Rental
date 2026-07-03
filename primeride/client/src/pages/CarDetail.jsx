@@ -70,11 +70,20 @@ export default function CarDetail() {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
+
     const msg = buildWhatsAppMessage(car, form);
-    // Use location.href instead of window.open — works on all mobile browsers
-    // without being blocked as a popup
     const waUrl = `https://wa.me/${WA_NUMBER}?text=${msg}`;
-    window.location.href = waUrl;
+
+    // Create a hidden anchor and click it — works on all browsers including mobile Safari
+    // without being blocked as popup and without navigating away from the page
+    const a = document.createElement('a');
+    a.href = waUrl;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
     setSubmitted(true);
     toast.success('Opening WhatsApp...');
   };
