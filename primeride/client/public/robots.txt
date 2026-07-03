@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /booking/confirmation
+
+Sitemap: https://primeride.pk/sitemap.xml

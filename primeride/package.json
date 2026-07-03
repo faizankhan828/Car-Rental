@@ -1,0 +1,18 @@
+{
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "build": "npm run build:web",
+    "build:web": "npm run build --workspace client",
+    "dev:web": "npm run dev --workspace client",
+    "dev:server": "npm run dev --workspace server",
+    "start:server": "npm run start --workspace server"
+  },
+  "dependencies": {
+    "mongodb": "^7.4.0",
+    "serverless-http": "^3.2.0"
+  }
+}
