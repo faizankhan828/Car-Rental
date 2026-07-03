@@ -33,12 +33,15 @@ export const useCarStore = create(
       // Update an existing car
       updateCar: (id, updates) => {
         set((state) => ({
+          _version: (state._version || 0) + 1,
           cars: state.cars.map((c) => {
             if (c._id !== id) return c;
             const updated = { ...c, ...updates };
             // Handle image URL update
-            if (updates.imageUrl) {
-              updated.images = [{ url: updates.imageUrl }];
+            if (updates.imageUrl !== undefined) {
+              updated.images = updates.imageUrl
+                ? [{ url: updates.imageUrl }]
+                : c.images;
             }
             // Handle features string → array
             if (typeof updates.features === 'string') {

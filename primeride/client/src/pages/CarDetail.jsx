@@ -71,9 +71,12 @@ export default function CarDetail() {
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     const msg = buildWhatsAppMessage(car, form);
-    window.open(`https://wa.me/${WA_NUMBER}?text=${msg}`, '_blank');
+    // Use location.href instead of window.open — works on all mobile browsers
+    // without being blocked as a popup
+    const waUrl = `https://wa.me/${WA_NUMBER}?text=${msg}`;
+    window.location.href = waUrl;
     setSubmitted(true);
-    toast.success('Booking request sent via WhatsApp!');
+    toast.success('Opening WhatsApp...');
   };
 
   const set = (field) => (e) => {
@@ -107,9 +110,11 @@ export default function CarDetail() {
               <div className="bg-white rounded-2xl overflow-hidden border border-gray-200">
                 <div className="relative" style={{ paddingTop: '60%' }}>
                   <img
+                    key={images[imageIndex]?.url}
                     src={images[imageIndex]?.url}
                     alt={`${car.brand} ${car.model}`}
                     className="absolute inset-0 w-full h-full object-cover"
+                    loading="eager"
                   />
                   {images.length > 1 && (
                     <>
