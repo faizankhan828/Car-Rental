@@ -97,7 +97,7 @@ export default function CarDetail() {
   return (
     <>
       <Helmet>
-        <title>{car.brand} {car.model} {car.year} — PrimeRide</title>
+        <title>{`${car.brand} ${car.model} ${car.year} — PrimeRide`}</title>
         <meta name="description" content={`Rent ${car.brand} ${car.model} in ${car.city} for PKR ${car.pricePerDay}/day.`} />
       </Helmet>
 

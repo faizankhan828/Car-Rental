@@ -121,7 +121,7 @@ export default function BookingFlow() {
   return (
     <>
       <Helmet>
-        <title>Book {car.brand} {car.model} — PrimeRide</title>
+        <title>{`Book ${car.brand} ${car.model} — PrimeRide`}</title>
       </Helmet>
 
       <div className="pt-24 min-h-screen bg-gray-50 dark:bg-gray-950">

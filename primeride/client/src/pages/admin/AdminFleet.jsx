@@ -83,8 +83,9 @@ export default function AdminFleet() {
       const { data } = await uploadCarImage(formData);
       setForm((current) => ({ ...current, imageUrl: data.image.url }));
       toast.success('Image uploaded to Cloudinary');
-    } catch {
-      toast.error('Image upload failed');
+    } catch (err) {
+      console.error('Upload error details:', err);
+      toast.error(err.response?.data?.message || 'Image upload failed');
     } finally {
       setUploadingImage(false);
     }
