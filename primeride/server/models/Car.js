@@ -23,7 +23,7 @@ const carSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ['sedan', 'suv', 'crossover', 'luxury', 'van'],
+      enum: ['sedan', 'suv', 'crossover', 'luxury', 'van', 'hatchback'],
       required: [true, 'Category is required'],
     },
     transmission: {

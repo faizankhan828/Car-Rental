@@ -2,12 +2,19 @@ const { verifyAccessToken } = require('../utils/jwt');
 const User = require('../models/User');
 
 /**
- * Protect routes — verifies JWT access token
+ * Protect routes — verifies JWT access token OR admin API key
  */
 const protect = async (req, res, next) => {
   try {
-    let token;
+    // Allow admin API key bypass
+    const adminKey = req.headers['x-admin-key'];
+    if (adminKey && adminKey === process.env.ADMIN_API_KEY) {
+      // Attach a synthetic admin user
+      req.user = { _id: 'admin', role: 'admin', username: 'Admin' };
+      return next();
+    }
 
+    let token;
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
       token = req.headers.authorization.split(' ')[1];
     }
