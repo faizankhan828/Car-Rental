@@ -63,14 +63,6 @@ export default function AdminLogin() {
               <h2 className="text-base font-semibold text-white">Sign In to Dashboard</h2>
             </div>
 
-            {/* Credentials hint */}
-            <div className="mb-5 rounded-xl border border-blue-500/20 bg-blue-500/10 px-4 py-3">
-              <p className="text-xs text-blue-300 leading-relaxed">
-                <span className="font-semibold text-blue-200">Email:</span> admin@primeride.pk<br />
-                <span className="font-semibold text-blue-200">Password:</span> PrimeRide2024!
-              </p>
-            </div>
-
             <form onSubmit={handleSubmit} noValidate className="space-y-4">
 
               {/* Error message */}
