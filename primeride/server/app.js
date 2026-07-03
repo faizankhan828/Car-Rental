@@ -21,7 +21,35 @@ app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl, Postman)
+      if (!origin) return callback(null, true);
+
+      const allowed = [
+        'http://localhost:5173',
+        'http://localhost:3000',
+        // Your deployed Vercel frontend
+        'https://rentacar-ruddy.vercel.app',
+        // Allow any *.vercel.app preview URL
+        /\.vercel\.app$/,
+      ];
+
+      const isAllowed = allowed.some((pattern) =>
+        pattern instanceof RegExp ? pattern.test(origin) : pattern === origin
+      );
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        // Also allow if FRONTEND_URL env var matches
+        const envUrl = process.env.FRONTEND_URL;
+        if (envUrl && origin === envUrl) {
+          callback(null, true);
+        } else {
+          callback(new Error(`CORS: origin ${origin} not allowed`));
+        }
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
