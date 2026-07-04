@@ -1,13 +1,20 @@
 const mongoose = require('mongoose');
 
+let isConnected = false;
+
 const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`❌ MongoDB Connection Error: ${error.message}`);
-    process.exit(1);
-  }
+  if (isConnected) return;
+
+  const uri = process.env.MONGO_URI;
+  if (!uri) throw new Error('MONGO_URI env var is not set — add it in Vercel project settings');
+
+  await mongoose.connect(uri, {
+    serverSelectionTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
+  });
+
+  isConnected = true;
+  console.log('✅ MongoDB connected');
 };
 
 module.exports = connectDB;

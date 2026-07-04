@@ -1,19 +1,12 @@
-// Vercel serverless entry point
-// Wraps the Express app as a serverless function
-
 const serverless = require('serverless-http');
 const { app, ready } = require('../app');
 
-// Ensure DB is connected before handling requests
 let handler;
 
 module.exports = async (req, res) => {
-  // Wait for DB connection + seed on cold start
-  await ready;
+  // Wait for DB on cold start (max 10s), but don't fail if it errors
+  try { await ready; } catch (_) {}
 
-  if (!handler) {
-    handler = serverless(app);
-  }
-
+  if (!handler) handler = serverless(app);
   return handler(req, res);
 };
