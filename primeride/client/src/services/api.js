@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-// Relative path — works on ANY domain (cararental.vercel.app, rentacar-ruddy.vercel.app, etc.)
-// Vercel rewrites /api/* → the serverless function, so no hardcoded domain needed.
-const BASE_URL  = '/api';
+// Points to cararental.vercel.app which is the full-stack Vercel project
+// with both the frontend and the /api serverless functions deployed.
+const BASE_URL  = import.meta.env.VITE_API_URL || 'https://cararental.vercel.app/api';
 const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY || 'primeride-admin-2024';
 
 const api = axios.create({
