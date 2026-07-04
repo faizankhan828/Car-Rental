@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Plus, Pencil, Trash2, X, Save, Car } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Save, Car, Upload } from 'lucide-react';
 import AdminLayout from './AdminLayout';
 import { useCarStore } from '../../store/carStore';
-import { uploadCarImage } from '../../services/carService';
+import { uploadToCloudinary } from '../../services/cloudinaryUpload';
 import toast from 'react-hot-toast';
 
 const CITIES = ['Lahore', 'Karachi', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Peshawar'];
@@ -76,16 +76,24 @@ export default function AdminFleet() {
 
   const handleImageUpload = async (file) => {
     if (!file) return;
+    
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be under 5MB');
+      return;
+    }
+
     setUploadingImage(true);
     try {
-      const formData = new FormData();
-      formData.append('image', file);
-      const { data } = await uploadCarImage(formData);
-      setForm((current) => ({ ...current, imageUrl: data.image.url }));
-      toast.success('Image uploaded to Cloudinary');
+      const { url } = await uploadToCloudinary(file);
+      setForm((current) => ({ ...current, imageUrl: url }));
+      toast.success('Image uploaded successfully!');
     } catch (err) {
-      console.error('Upload error details:', err);
-      toast.error(err.response?.data?.message || 'Image upload failed');
+      console.error('Upload error:', err);
+      toast.error(err.message || 'Upload failed — please create the Cloudinary upload preset first');
     } finally {
       setUploadingImage(false);
     }
@@ -321,27 +329,37 @@ export default function AdminFleet() {
                 </Field>
               </div>
 
-              {/* Image URL */}
-              <Field label="Car Image (optional)">
+              {/* Image */}
+              <Field label="Car Image">
                 <input
                   value={form.imageUrl}
                   onChange={set('imageUrl')}
-                  placeholder="https://example.com/car.jpg"
+                  placeholder="Paste image URL or upload below"
                   className={inp}
                 />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleImageUpload(e.target.files?.[0])}
-                  className="mt-2 block w-full text-xs text-gray-400 file:mr-4 file:rounded-lg file:border-0 file:bg-slate-700 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-slate-600"
-                />
-                {uploadingImage && <p className="mt-2 text-xs text-gray-400">Uploading image to Cloudinary...</p>}
+                <label className={`mt-2 flex items-center justify-center gap-2.5 w-full py-3 rounded-xl border-2 border-dashed cursor-pointer transition-colors ${
+                  uploadingImage
+                    ? 'border-blue-500/40 bg-blue-500/5'
+                    : 'border-gray-600 hover:border-blue-500/50 hover:bg-blue-500/5'
+                }`}>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={(e) => handleImageUpload(e.target.files?.[0])}
+                    className="sr-only"
+                    disabled={uploadingImage}
+                  />
+                  <Upload size={16} className={uploadingImage ? 'text-blue-400' : 'text-gray-400'} />
+                  <span className={`text-sm ${uploadingImage ? 'text-blue-400' : 'text-gray-400'}`}>
+                    {uploadingImage ? 'Uploading to Cloudinary...' : 'Click to upload image (JPG, PNG, WebP — max 5MB)'}
+                  </span>
+                </label>
                 {form.imageUrl && (
                   <img
                     src={form.imageUrl}
                     alt="Preview"
-                    className="mt-2 h-24 w-full object-cover rounded-xl bg-gray-700"
-                    onError={e => e.target.style.display = 'none'}
+                    className="mt-2 h-28 w-full object-cover rounded-xl bg-gray-700"
+                    onError={e => { e.target.style.display = 'none'; }}
                   />
                 )}
               </Field>
