@@ -1,41 +1,54 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Search, Filter, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useCarStore } from '../store/carStore';
-import { CAR_MODELS } from '../data/staticCars';
+import { getCars } from '../services/carService';
 import CarCard from '../components/cars/CarCard';
 import Button from '../components/ui/Button';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 const BRANDS = ['All Brands', 'Suzuki', 'Honda', 'Toyota'];
-const CATEGORIES = ['All Types', 'hatchback', 'sedan'];
+const CAR_MODELS = [
+  'All Models', 'Suzuki WagonR', 'Suzuki Swift', 'Suzuki Alto',
+  'Honda City', 'Honda Civic', 'Toyota Corolla', 'Toyota Yaris',
+  'Toyota Corolla GLi', 'Toyota Corolla XLi', 'Toyota Corolla Grande', 'Toyota Corolla Altis',
+];
+const CATEGORIES   = ['All Types', 'hatchback', 'sedan', 'suv', 'crossover', 'luxury', 'van'];
 const PRICE_RANGES = ['Any Price', 'Under 5,000', '5,000 – 7,000', 'Above 7,000'];
 
 export default function Cars() {
-  const [search, setSearch] = useState('');
-  const [brand, setBrand] = useState('All Brands');
-  const [model, setModel] = useState('All Models');
-  const [category, setCategory] = useState('All Types');
-  const [price, setPrice] = useState('Any Price');
+  const [allCars, setAllCars] = useState([]);
+  const [loadingCars, setLoadingCars] = useState(true);
+  const [search, setSearch]       = useState('');
+  const [brand, setBrand]         = useState('All Brands');
+  const [model, setModel]         = useState('All Models');
+  const [category, setCategory]   = useState('All Types');
+  const [price, setPrice]         = useState('Any Price');
   const [withDriver, setWithDriver] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
-  const { cars } = useCarStore();
+  useEffect(() => {
+    setLoadingCars(true);
+    getCars({ limit: 100, status: 'available' })
+      .then(res => setAllCars(res.data.cars || []))
+      .catch(() => setAllCars([]))
+      .finally(() => setLoadingCars(false));
+  }, []);
 
   const filtered = useMemo(() => {
-    return cars.filter((car) => {
+    return allCars.filter((car) => {
       const q = search.toLowerCase();
       if (q && !`${car.brand} ${car.model} ${car.year}`.toLowerCase().includes(q)) return false;
       if (brand !== 'All Brands' && car.brand !== brand) return false;
       if (model !== 'All Models' && `${car.brand} ${car.model}` !== model) return false;
       if (category !== 'All Types' && car.category !== category) return false;
       if (withDriver && !car.withDriverAvailable) return false;
-      if (price === 'Under 5,000' && car.pricePerDay >= 5000) return false;
-      if (price === '5,000 – 7,000' && (car.pricePerDay < 5000 || car.pricePerDay > 7000)) return false;
-      if (price === 'Above 7,000' && car.pricePerDay <= 7000) return false;
+      if (price === 'Under 5,000'    && car.pricePerDay >= 5000)  return false;
+      if (price === '5,000 – 7,000'  && (car.pricePerDay < 5000 || car.pricePerDay > 7000)) return false;
+      if (price === 'Above 7,000'    && car.pricePerDay <= 7000)  return false;
       return true;
     });
-  }, [search, brand, model, category, price, withDriver]);
+  }, [allCars, search, brand, model, category, price, withDriver]);
 
   const reset = () => {
     setSearch(''); setBrand('All Brands'); setModel('All Models');
@@ -46,6 +59,14 @@ export default function Cars() {
     category !== 'All Types' || price !== 'Any Price' || withDriver;
 
   const selectCls = "w-full py-2.5 px-3 text-sm border border-gray-300 rounded-xl bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer";
+
+  if (loadingCars) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-16 flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
 
   return (
     <>

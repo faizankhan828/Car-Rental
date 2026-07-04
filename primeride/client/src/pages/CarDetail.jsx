@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Users, Fuel, Gauge, MapPin, Star, User, ChevronLeft, ChevronRight, CheckCircle, Phone, MessageCircle, Shield } from 'lucide-react';
-import { useCarStore } from '../store/carStore';
+import { getCarById } from '../services/carService';
 import Button from '../components/ui/Button';
 import Badge from '../components/ui/Badge';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 
 const WA_NUMBER = '923104330007';
@@ -30,13 +31,33 @@ function buildWhatsAppMessage(car, form) {
 
 export default function CarDetail() {
   const { id } = useParams();
-  const { cars } = useCarStore();
-  const car = cars.find(c => c._id === id);
-
+  const [car, setCar]               = useState(null);
+  const [loadingCar, setLoadingCar] = useState(true);
   const [imageIndex, setImageIndex] = useState(0);
-  const [form, setForm] = useState({ name: '', phone: '', passengers: 1, pickupDate: '', dropoffDate: '', pickupLocation: '', dropoffLocation: '', withDriver: false, message: '' });
-  const [errors, setErrors] = useState({});
+  const [form, setForm]             = useState({
+    name: '', phone: '', passengers: 1,
+    pickupDate: '', dropoffDate: '',
+    pickupLocation: '', dropoffLocation: '',
+    withDriver: false, message: '',
+  });
+  const [errors, setErrors]     = useState({});
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    setLoadingCar(true);
+    getCarById(id)
+      .then(res => setCar(res.data.car))
+      .catch(() => setCar(null))
+      .finally(() => setLoadingCar(false));
+  }, [id]);
+
+  if (loadingCar) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-16 flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
 
   if (!car) {
     return (
