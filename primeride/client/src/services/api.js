@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-// Must end with /api — e.g. https://cararental.vercel.app/api
-const BASE_URL  = (import.meta.env.VITE_API_URL || 'https://cararental.vercel.app/api').replace(/\/$/, '');
+// Relative path — works on ANY domain (cararental.vercel.app, rentacar-ruddy.vercel.app, etc.)
+// Vercel rewrites /api/* → the serverless function, so no hardcoded domain needed.
+const BASE_URL  = '/api';
 const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY || 'primeride-admin-2024';
 
 const api = axios.create({
