@@ -19,42 +19,17 @@ const app = express();
 
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (mobile apps, curl, Postman)
-      if (!origin) return callback(null, true);
+// Wide-open CORS — this API serves car rental data, all origins allowed.
+// The admin key header protects write operations.
+app.use(cors({
+  origin: true, // reflect the request origin — allows any domain
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-key'],
+}));
 
-      const allowed = [
-        'http://localhost:5173',
-        'http://localhost:3000',
-        // Your deployed Vercel frontend
-        'https://rentacar-ruddy.vercel.app',
-        // Allow any *.vercel.app preview URL
-        /\.vercel\.app$/,
-      ];
-
-      const isAllowed = allowed.some((pattern) =>
-        pattern instanceof RegExp ? pattern.test(origin) : pattern === origin
-      );
-
-      if (isAllowed) {
-        callback(null, true);
-      } else {
-        // Also allow if FRONTEND_URL env var matches
-        const envUrl = process.env.FRONTEND_URL;
-        if (envUrl && origin === envUrl) {
-          callback(null, true);
-        } else {
-          callback(new Error(`CORS: origin ${origin} not allowed`));
-        }
-      }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-key'],
-  })
-);
+// Handle all preflight OPTIONS requests immediately
+app.options('*', cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());

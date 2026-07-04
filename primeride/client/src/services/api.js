@@ -1,16 +1,16 @@
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_URL || '/api';
+// Must end with /api — e.g. https://cararental.vercel.app/api
+const BASE_URL  = (import.meta.env.VITE_API_URL || 'https://cararental.vercel.app/api').replace(/\/$/, '');
 const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY || 'primeride-admin-2024';
 
 const api = axios.create({
   baseURL: BASE_URL,
-  withCredentials: false, // no cookies needed — we use admin key
+  withCredentials: false,
   headers: { 'Content-Type': 'application/json' },
-  timeout: 15000,
+  timeout: 20000,
 });
 
-// Attach admin key on every request so car/upload operations work
 api.interceptors.request.use(
   (config) => {
     config.headers['x-admin-key'] = ADMIN_KEY;
