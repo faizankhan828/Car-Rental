@@ -1,20 +1,28 @@
 const mongoose = require('mongoose');
 
-let isConnected = false;
-
 const connectDB = async () => {
-  if (isConnected) return;
+  if (mongoose.connection.readyState === 1) {
+    return;
+  }
 
   const uri = process.env.MONGO_URI;
-  if (!uri) throw new Error('MONGO_URI env var is not set — add it in Vercel project settings');
+  if (!uri) throw new Error('MONGO_URI is not set in environment variables');
+
+  if (mongoose.connection.readyState === 2) {
+    // If connection is already in progress, wait for it
+    return new Promise((resolve, reject) => {
+      mongoose.connection.once('connected', () => resolve());
+      mongoose.connection.once('error', (err) => reject(err));
+    });
+  }
 
   await mongoose.connect(uri, {
-    serverSelectionTimeoutMS: 10000,
-    socketTimeoutMS: 45000,
+    serverSelectionTimeoutMS: 5000,
+    connectTimeoutMS: 5000,
   });
 
-  isConnected = true;
-  console.log('✅ MongoDB connected');
+  console.log('MongoDB connected');
 };
 
 module.exports = connectDB;
+
