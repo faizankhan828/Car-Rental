@@ -9,7 +9,7 @@
  * 4. Save it
  */
 
-const CLOUD_NAME = 'Root';           // your Cloudinary cloud name
+const CLOUD_NAME = 'dv7naw4hi';        // your Cloudinary cloud name
 const UPLOAD_PRESET = 'primeride_cars'; // the unsigned preset you create
 
 /**
