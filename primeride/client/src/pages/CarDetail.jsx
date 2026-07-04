@@ -74,15 +74,16 @@ export default function CarDetail() {
     const msg = buildWhatsAppMessage(car, form);
     const waUrl = `https://wa.me/${WA_NUMBER}?text=${msg}`;
 
-    // Create a hidden anchor and click it — works on all browsers including mobile Safari
-    // without being blocked as popup and without navigating away from the page
-    const a = document.createElement('a');
-    a.href = waUrl;
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    // Most reliable cross-browser/mobile approach:
+    // Assign to location.href but store current URL first so browser back button works
+    const link = document.createElement('a');
+    link.href = waUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => document.body.removeChild(link), 100);
 
     setSubmitted(true);
     toast.success('Opening WhatsApp...');
