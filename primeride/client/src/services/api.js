@@ -1,7 +1,10 @@
 import axios from 'axios';
 
-// Same-origin by default so the deployed frontend always talks to its own API.
-const BASE_URL  = import.meta.env.VITE_API_URL || '/api';
+// Production must use the same Vercel deployment's API. This avoids stale
+// VITE_API_URL values sending the admin panel to an old or wrong backend.
+const BASE_URL = import.meta.env.DEV
+  ? import.meta.env.VITE_API_URL || '/api'
+  : '/api';
 const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY || 'primeride-admin-2024';
 
 const api = axios.create({
