@@ -1,8 +1,7 @@
 import axios from 'axios';
 
-// Points to cararental.vercel.app which is the full-stack Vercel project
-// with both the frontend and the /api serverless functions deployed.
-const BASE_URL  = import.meta.env.VITE_API_URL || 'https://cararental.vercel.app/api';
+// Same-origin by default so the deployed frontend always talks to its own API.
+const BASE_URL  = import.meta.env.VITE_API_URL || '/api';
 const ADMIN_KEY = import.meta.env.VITE_ADMIN_KEY || 'primeride-admin-2024';
 
 const api = axios.create({
