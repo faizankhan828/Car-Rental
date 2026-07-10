@@ -1,5 +1,37 @@
 const Car = require('../models/Car');
 
+const normalizeCarData = (body) => {
+  const data = { ...body };
+
+  if (!data.title && data.brand && data.model) {
+    data.title = `${data.brand} ${data.model}`;
+  }
+
+  if (typeof data.features === 'string') {
+    data.features = data.features.split(',').map(f => f.trim()).filter(Boolean);
+  }
+
+  if (typeof data.fuelType === 'string') {
+    data.fuelType = data.fuelType.trim().toLowerCase();
+  }
+
+  if (typeof data.category === 'string') {
+    data.category = data.category.trim().toLowerCase();
+  }
+
+  if (typeof data.transmission === 'string') {
+    data.transmission = data.transmission.trim().toLowerCase();
+  }
+
+  if (typeof data.imageUrl === 'string' && data.imageUrl.trim() && !data.images) {
+    data.images = [{ url: data.imageUrl.trim(), publicId: '' }];
+  }
+
+  delete data.imageUrl;
+
+  return data;
+};
+
 // GET /api/cars
 const getCars = async (req, res) => {
   try {
@@ -43,12 +75,7 @@ const getCarById = async (req, res) => {
 // POST /api/cars  (admin)
 const createCar = async (req, res) => {
   try {
-    const data = { ...req.body };
-    // title is required by schema — auto-generate if missing
-    if (!data.title) data.title = `${data.brand} ${data.model}`;
-    if (typeof data.features === 'string') {
-      data.features = data.features.split(',').map(f => f.trim()).filter(Boolean);
-    }
+    const data = normalizeCarData(req.body);
     const car = await Car.create(data);
     res.status(201).json({ success: true, car });
   } catch (err) {
@@ -59,11 +86,8 @@ const createCar = async (req, res) => {
 // PUT /api/cars/:id  (admin)
 const updateCar = async (req, res) => {
   try {
-    const data = { ...req.body };
-    if (typeof data.features === 'string') {
-      data.features = data.features.split(',').map(f => f.trim()).filter(Boolean);
-    }
-    const car = await Car.findByIdAndUpdate(req.params.id, data, { new: true, runValidators: false });
+    const data = normalizeCarData(req.body);
+    const car = await Car.findByIdAndUpdate(req.params.id, data, { new: true, runValidators: true });
     if (!car) return res.status(404).json({ success: false, message: 'Car not found.' });
     res.json({ success: true, car });
   } catch (err) {

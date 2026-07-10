@@ -44,4 +44,18 @@ app.use('/api/cars', carRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-module.exports = app;
+// A promise consumers can await before handling requests.
+// Used by server.js (local) and api/index.js (serverless) which both
+// destructure { app, ready } from this module.
+const ready = (async () => {
+  try {
+    await connectDB();
+    await seedAdminUser();
+    dbReady = true;
+  } catch (err) {
+    // Don't crash the process/function — /api/cars middleware will retry
+    console.error('Startup DB connection failed:', err.message);
+  }
+})();
+
+module.exports = { app, ready };

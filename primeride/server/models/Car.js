@@ -66,7 +66,7 @@ const carSchema = new mongoose.Schema(
     features: [String],
     fuelType: {
       type: String,
-      enum: ['petrol', 'diesel', 'electric', 'hybrid'],
+      enum: ['petrol', 'diesel', 'cng', 'electric', 'hybrid'],
       default: 'petrol',
     },
     averageRating: {
